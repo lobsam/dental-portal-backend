@@ -67,23 +67,16 @@ class AppointmentService:
         await self.db.refresh(appointment)
         return appointment
 
-    async def cancel(self, clinic_id: int, appointment_id: int) -> Appointment:
+    async def approve(self, clinic_id: int, appointment_id: int) -> Appointment:
         appointment = await self.get(clinic_id, appointment_id)
-        appointment.status = AppointmentStatus.CANCELLED
+        appointment.status = AppointmentStatus.APPROVED
         await self.db.commit()
         await self.db.refresh(appointment)
         return appointment
 
-    async def check_in(self, clinic_id: int, appointment_id: int) -> Appointment:
+    async def reject(self, clinic_id: int, appointment_id: int) -> Appointment:
         appointment = await self.get(clinic_id, appointment_id)
-        appointment.status = AppointmentStatus.CHECKED_IN
-        await self.db.commit()
-        await self.db.refresh(appointment)
-        return appointment
-
-    async def complete(self, clinic_id: int, appointment_id: int) -> Appointment:
-        appointment = await self.get(clinic_id, appointment_id)
-        appointment.status = AppointmentStatus.COMPLETED
+        appointment.status = AppointmentStatus.REJECTED
         await self.db.commit()
         await self.db.refresh(appointment)
         return appointment
@@ -134,12 +127,12 @@ class AppointmentService:
             provider_id=provider_id,
             start_time=req.requested_start,
             end_time=end_time,
-            status=AppointmentStatus.CONFIRMED,
+            status=AppointmentStatus.APPROVED,
         )
         self.db.add(appointment)
         await self.db.flush()
 
-        req.status = AppointmentRequestStatus.CONFIRMED
+        req.status = AppointmentRequestStatus.APPROVED
         req.resulting_appointment_id = appointment.id
         await self.db.commit()
         await self.db.refresh(appointment)
@@ -149,9 +142,9 @@ class AppointmentService:
         req = await self._get_request(clinic_id, request_id)
         if req.status != AppointmentRequestStatus.PENDING:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Request already resolved")
-        req.status = AppointmentRequestStatus.DECLINED
+        req.status = AppointmentRequestStatus.REJECTED
         if reason:
-            req.note = f"{req.note or ''}\n[Declined: {reason}]".strip()
+            req.note = f"{req.note or ''}\n[Rejected: {reason}]".strip()
         await self.db.commit()
         await self.db.refresh(req)
         return req

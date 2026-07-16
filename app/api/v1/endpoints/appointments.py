@@ -117,28 +117,19 @@ async def update_appointment(
     return await AppointmentService(db).update(current_user.clinic_id, appointment_id, data)
 
 
-@router.post("/appointments/{appointment_id}/cancel", response_model=AppointmentOut)
-async def cancel_appointment(
+@router.post("/appointments/{appointment_id}/approve", response_model=AppointmentOut)
+async def approve_appointment(
     appointment_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> Appointment:
-    return await AppointmentService(db).cancel(current_user.clinic_id, appointment_id)
+    return await AppointmentService(db).approve(current_user.clinic_id, appointment_id)
 
 
-@router.post("/appointments/{appointment_id}/check-in", response_model=AppointmentOut)
-async def check_in_appointment(
+@router.post("/appointments/{appointment_id}/reject", response_model=AppointmentOut)
+async def reject_appointment(
     appointment_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> Appointment:
-    return await AppointmentService(db).check_in(current_user.clinic_id, appointment_id)
-
-
-@router.post("/appointments/{appointment_id}/complete", response_model=AppointmentOut)
-async def complete_appointment(
-    appointment_id: int,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> Appointment:
-    return await AppointmentService(db).complete(current_user.clinic_id, appointment_id)
+    return await AppointmentService(db).reject(current_user.clinic_id, appointment_id)

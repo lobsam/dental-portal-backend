@@ -9,6 +9,7 @@ export default function PatientDetailPage() {
   const [patient, setPatient] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [plans, setPlans] = useState([]);
+  const [sources, setSources] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -17,14 +18,26 @@ export default function PatientDetailPage() {
       api.get(`/clinic/patients/${id}`),
       api.get(`/clinic/patients/appointments/?patient_id=${id}`),
       api.get(`/clinic/patients/treatment-plans/?patient_id=${id}`),
+      api.get(`/clinic/managers/patient-sources/`).catch(() => []),
     ])
-      .then(([p, a, t]) => {
+      .then(([p, a, t, s]) => {
         setPatient(p);
         setAppointments(a);
         setPlans(t);
+        setSources(s);
       })
       .catch((err) => setError(err.message));
   }, [id]);
+
+  const sourceName = patient
+    ? sources.find((s) => s.id === patient.patient_source_id)?.name
+    : null;
+
+  const fullName = patient
+    ? [patient.first_name, patient.middle_name, patient.last_name, patient.suffix]
+        .filter(Boolean)
+        .join(" ")
+    : "";
 
   if (error) {
     return (
@@ -44,7 +57,7 @@ export default function PatientDetailPage() {
 
   return (
     <PageShell
-      title={`${patient.first_name} ${patient.last_name}`}
+      title={fullName}
       actions={
         <Link to="/patients" className="text-sm text-turquoise-600 hover:underline">
           ← Back to patients
@@ -52,16 +65,59 @@ export default function PatientDetailPage() {
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl border border-saffron-200 p-6">
-          <h2 className="text-maroon-800 font-semibold mb-4">Patient info</h2>
-          <dl className="space-y-2 text-sm">
-            <Row label="Phone" value={patient.phone} />
-            <Row label="Email" value={patient.email} />
-            <Row label="Date of birth" value={patient.date_of_birth} />
-            <Row label="Gender" value={patient.gender} />
-            <Row label="Address" value={patient.address} />
-            <Row label="Emergency contact" value={patient.emergency_contact_name} />
-          </dl>
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Identity</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Patient ID" value={patient.patient_code} />
+              <Row label="Nickname" value={patient.nickname} />
+              <Row label="Gender" value={patient.gender} />
+              <Row label="Date of birth" value={patient.date_of_birth} />
+              <Row label="Profession" value={patient.job_title} />
+            </dl>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Contact</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Phone" value={patient.phone} />
+              <Row label="Email" value={patient.email} />
+              <Row label="Address" value={patient.address} />
+            </dl>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Vitals</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Height" value={patient.height ? `${patient.height} cm` : null} />
+              <Row label="Weight" value={patient.weight ? `${patient.weight} kg` : null} />
+            </dl>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Emergency & recall</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Contact name" value={patient.emergency_contact_name} />
+              <Row label="Contact number" value={patient.emergency_contact_phone} />
+              <Row label="Re-call date" value={patient.recall_date} />
+            </dl>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Allergies</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Has allergies" value={patient.has_allergies ? "Yes" : "No"} />
+              {patient.has_allergies && <Row label="Details" value={patient.allergies} />}
+            </dl>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-saffron-200 p-6">
+            <h2 className="text-maroon-800 font-semibold mb-4">Additional</h2>
+            <dl className="space-y-2 text-sm">
+              <Row label="Referral source" value={sourceName} />
+              <Row label="Notes" value={patient.notes} />
+            </dl>
+          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-6">

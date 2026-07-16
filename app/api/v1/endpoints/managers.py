@@ -4,11 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.drug import Drug
+from app.models.patient_source import PatientSource
 from app.models.procedure import Procedure
 from app.models.user import User
 from app.schemas.drug import DrugCreate, DrugOut, DrugUpdate
+from app.schemas.patient_source import PatientSourceCreate, PatientSourceOut, PatientSourceUpdate
 from app.schemas.procedure import ProcedureCreate, ProcedureOut, ProcedureUpdate
 from app.services.drug_service import DrugService
+from app.services.patient_source_service import PatientSourceService
 from app.services.procedure_service import ProcedureService
 
 router = APIRouter(prefix="/clinic/managers", tags=["managers"])
@@ -106,3 +109,52 @@ async def delete_drug(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await DrugService(db).delete(current_user.clinic_id, drug_id)
+
+
+# --- Patient sources -------------------------------------------------------------
+
+
+@router.get("/patient-sources/", response_model=list[PatientSourceOut])
+async def list_patient_sources(
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+) -> list[PatientSource]:
+    return await PatientSourceService(db).list(current_user.clinic_id)
+
+
+@router.post(
+    "/patient-sources/", response_model=PatientSourceOut, status_code=status.HTTP_201_CREATED
+)
+async def create_patient_source(
+    data: PatientSourceCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PatientSource:
+    return await PatientSourceService(db).create(current_user.clinic_id, data)
+
+
+@router.get("/patient-sources/{source_id}", response_model=PatientSourceOut)
+async def get_patient_source(
+    source_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PatientSource:
+    return await PatientSourceService(db).get(current_user.clinic_id, source_id)
+
+
+@router.patch("/patient-sources/{source_id}", response_model=PatientSourceOut)
+async def update_patient_source(
+    source_id: int,
+    data: PatientSourceUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> PatientSource:
+    return await PatientSourceService(db).update(current_user.clinic_id, source_id, data)
+
+
+@router.delete("/patient-sources/{source_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_patient_source(
+    source_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    await PatientSourceService(db).delete(current_user.clinic_id, source_id)

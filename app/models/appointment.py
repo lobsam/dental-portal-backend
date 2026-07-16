@@ -8,17 +8,15 @@ from app.models.base import Base, TimestampMixin
 
 
 class AppointmentStatus(str, enum.Enum):
-    CONFIRMED = "confirmed"
-    CHECKED_IN = "checked_in"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-    NO_SHOW = "no_show"
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
 
 
 class AppointmentRequestStatus(str, enum.Enum):
     PENDING = "pending"
-    CONFIRMED = "confirmed"
-    DECLINED = "declined"
+    APPROVED = "approved"
+    REJECTED = "rejected"
 
 
 class Appointment(Base, TimestampMixin):
@@ -33,7 +31,12 @@ class Appointment(Base, TimestampMixin):
     end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     appointment_type: Mapped[str | None] = mapped_column(String(100))
     status: Mapped[AppointmentStatus] = mapped_column(
-        Enum(AppointmentStatus, name="appointment_status"), default=AppointmentStatus.CONFIRMED
+        Enum(
+            AppointmentStatus,
+            name="appointment_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
+        default=AppointmentStatus.PENDING,
     )
     notes: Mapped[str | None] = mapped_column(Text)
 
@@ -51,7 +54,11 @@ class AppointmentRequest(Base, TimestampMixin):
     requested_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     note: Mapped[str | None] = mapped_column(Text)
     status: Mapped[AppointmentRequestStatus] = mapped_column(
-        Enum(AppointmentRequestStatus, name="appointment_request_status"),
+        Enum(
+            AppointmentRequestStatus,
+            name="appointment_request_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
         default=AppointmentRequestStatus.PENDING,
     )
     resulting_appointment_id: Mapped[int | None] = mapped_column(

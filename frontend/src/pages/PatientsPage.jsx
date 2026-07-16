@@ -2,18 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import PageShell from "../components/PageShell";
-import Modal from "../components/Modal";
-
-const emptyForm = { first_name: "", last_name: "", email: "", phone: "", date_of_birth: "" };
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
 
   async function load(q) {
     setLoading(true);
@@ -34,25 +28,6 @@ export default function PatientsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  async function handleCreate(e) {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-    try {
-      await api.post("/clinic/patients/", {
-        ...form,
-        date_of_birth: form.date_of_birth || null,
-      });
-      setShowModal(false);
-      setForm(emptyForm);
-      load(search);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   return (
     <PageShell
       title="Patients"
@@ -64,12 +39,12 @@ export default function PatientsPage() {
             placeholder="Search patients…"
             className="rounded-lg border border-maroon-200 px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-turquoise-400"
           />
-          <button
-            onClick={() => setShowModal(true)}
+          <Link
+            to="/patients/add"
             className="bg-maroon-700 hover:bg-maroon-600 text-parchment-50 text-sm font-medium rounded-lg px-4 py-2"
           >
             + New Patient
-          </button>
+          </Link>
         </>
       }
     >
@@ -118,51 +93,6 @@ export default function PatientsPage() {
           </tbody>
         </table>
       </div>
-
-      <Modal open={showModal} onClose={() => setShowModal(false)} title="New patient">
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <TextField
-              label="First name"
-              required
-              value={form.first_name}
-              onChange={(v) => setForm((f) => ({ ...f, first_name: v }))}
-            />
-            <TextField
-              label="Last name"
-              required
-              value={form.last_name}
-              onChange={(v) => setForm((f) => ({ ...f, last_name: v }))}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <TextField
-              label="Phone"
-              value={form.phone}
-              onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-            />
-            <TextField
-              label="Email"
-              type="email"
-              value={form.email}
-              onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-            />
-          </div>
-          <TextField
-            label="Date of birth"
-            type="date"
-            value={form.date_of_birth}
-            onChange={(v) => setForm((f) => ({ ...f, date_of_birth: v }))}
-          />
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full bg-maroon-700 hover:bg-maroon-600 disabled:opacity-60 text-parchment-50 font-medium rounded-lg py-2.5"
-          >
-            {saving ? "Saving…" : "Create patient"}
-          </button>
-        </form>
-      </Modal>
     </PageShell>
   );
 }

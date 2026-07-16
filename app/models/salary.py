@@ -1,7 +1,7 @@
 """Staff salary/payroll module.
 
 Note: this domain was NOT found in the reference app
-(new.dentalclinicapp.com) during the endpoint audit — its `clinic/finance/`
+(new.dentalclinicapp.com) during the endpoint audit -- its `clinic/finance/`
 routes only covered accounting, expenses, reports, and soa-invoices. This is
 an added extension for staff payroll, requested separately, and is not a
 reproduction of the original site's API.
@@ -36,7 +36,12 @@ class SalaryRecord(Base, TimestampMixin):
     deductions: Mapped[float] = mapped_column(Numeric(10, 2), default=0)
 
     status: Mapped[SalaryRecordStatus] = mapped_column(
-        Enum(SalaryRecordStatus, name="salary_record_status"), default=SalaryRecordStatus.PENDING
+        Enum(
+            SalaryRecordStatus,
+            name="salary_record_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
+        default=SalaryRecordStatus.PENDING,
     )
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

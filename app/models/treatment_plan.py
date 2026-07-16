@@ -30,7 +30,11 @@ class TreatmentPlan(Base, TimestampMixin):
     provider_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
     status: Mapped[TreatmentPlanStatus] = mapped_column(
-        Enum(TreatmentPlanStatus, name="treatment_plan_status"),
+        Enum(
+            TreatmentPlanStatus,
+            name="treatment_plan_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
         default=TreatmentPlanStatus.PROPOSED,
     )
     notes: Mapped[str | None] = mapped_column(Text)
@@ -53,7 +57,11 @@ class TreatmentPlanItem(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(String(500))
     cost: Mapped[float | None] = mapped_column(Numeric(10, 2))
     status: Mapped[TreatmentPlanItemStatus] = mapped_column(
-        Enum(TreatmentPlanItemStatus, name="treatment_plan_item_status"),
+        Enum(
+            TreatmentPlanItemStatus,
+            name="treatment_plan_item_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
         default=TreatmentPlanItemStatus.PROPOSED,
     )
 

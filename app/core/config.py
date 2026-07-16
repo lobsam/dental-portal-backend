@@ -19,6 +19,21 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 12
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
 
+    # SMTP / outbound email
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_USE_TLS: bool = True
+    SMTP_FROM_EMAIL: str = "no-reply@example.com"
+    SMTP_FROM_NAME: str = "Dental Portal"
+
+    # Base URL of the deployed frontend, used to build links in emails
+    FRONTEND_URL: str = "http://localhost:5173"
+
+    # Password reset
+    PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
+
     @property
     def sync_database_url(self) -> str:
         """Alembic requires a sync driver; swap asyncpg for psycopg2."""

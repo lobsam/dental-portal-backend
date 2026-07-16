@@ -83,13 +83,9 @@ function StatCard({ label, value, to, accent }) {
 
 export function StatusPill({ status }) {
   const styles = {
-    confirmed: "bg-turquoise-100 text-turquoise-700",
-    checked_in: "bg-saffron-100 text-saffron-700",
-    completed: "bg-maroon-100 text-maroon-700",
-    cancelled: "bg-gray-100 text-gray-500",
-    no_show: "bg-gray-100 text-gray-500",
     pending: "bg-saffron-100 text-saffron-700",
-    declined: "bg-gray-100 text-gray-500",
+    approved: "bg-turquoise-100 text-turquoise-700",
+    rejected: "bg-gray-100 text-gray-500",
   };
   return (
     <span

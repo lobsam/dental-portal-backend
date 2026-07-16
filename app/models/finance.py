@@ -39,7 +39,11 @@ class AccountingEntry(Base, TimestampMixin):
     clinic_id: Mapped[int] = mapped_column(ForeignKey("clinics.id", ondelete="CASCADE"), index=True)
 
     entry_type: Mapped[AccountingEntryType] = mapped_column(
-        Enum(AccountingEntryType, name="accounting_entry_type")
+        Enum(
+            AccountingEntryType,
+            name="accounting_entry_type",
+            values_callable=lambda obj: [e.value for e in obj],
+        )
     )
     amount: Mapped[float] = mapped_column(Numeric(10, 2))
     description: Mapped[str | None] = mapped_column(String(500))
@@ -60,7 +64,12 @@ class SoaInvoice(Base, TimestampMixin):
     amount: Mapped[float] = mapped_column(Numeric(10, 2))
     amount_paid: Mapped[float] = mapped_column(Numeric(10, 2), default=0)
     status: Mapped[SoaInvoiceStatus] = mapped_column(
-        Enum(SoaInvoiceStatus, name="soa_invoice_status"), default=SoaInvoiceStatus.UNPAID
+        Enum(
+            SoaInvoiceStatus,
+            name="soa_invoice_status",
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
+        default=SoaInvoiceStatus.UNPAID,
     )
     due_date: Mapped[date | None] = mapped_column(Date)
     issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
