@@ -2,20 +2,29 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# passlib is unmaintained and its bcrypt backend breaks under bcrypt>=4.1
+# (a wrap-bug self-test trips bcrypt's stricter length check on unrelated
+# input). Calling bcrypt directly avoids that whole class of bug.
+_BCRYPT_MAX_BYTES = 72
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    truncated = password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
+    return bcrypt.hashpw(truncated, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    truncated = plain_password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
+    try:
+        return bcrypt.checkpw(truncated, hashed_password.encode("utf-8"))
+    except ValueError:
+        # malformed/foreign hash format
+        return False
 
 
 def _create_token(
