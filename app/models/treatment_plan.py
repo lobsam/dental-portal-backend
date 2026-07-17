@@ -1,6 +1,7 @@
 import enum
+from datetime import date
 
-from sqlalchemy import Enum, ForeignKey, Numeric, String, Text
+from sqlalchemy import Date, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -28,6 +29,9 @@ class TreatmentPlan(Base, TimestampMixin):
     clinic_id: Mapped[int] = mapped_column(ForeignKey("clinics.id", ondelete="CASCADE"), index=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey("patients.id", ondelete="CASCADE"), index=True)
     provider_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+    name: Mapped[str | None] = mapped_column(String(255))
+    plan_date: Mapped[date | None] = mapped_column(Date)
 
     status: Mapped[TreatmentPlanStatus] = mapped_column(
         Enum(

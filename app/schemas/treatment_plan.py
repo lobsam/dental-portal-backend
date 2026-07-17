@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -35,12 +35,16 @@ class TreatmentPlanItemOut(TreatmentPlanItemBase):
 class TreatmentPlanCreate(BaseModel):
     patient_id: int
     provider_id: int | None = None
+    name: str | None = None
+    plan_date: date | None = None
     notes: str | None = None
     items: list[TreatmentPlanItemCreate] = []
 
 
 class TreatmentPlanUpdate(BaseModel):
     provider_id: int | None = None
+    name: str | None = None
+    plan_date: date | None = None
     status: TreatmentPlanStatus | None = None
     notes: str | None = None
 
@@ -50,6 +54,8 @@ class TreatmentPlanOut(BaseModel):
     clinic_id: int
     patient_id: int
     provider_id: int | None
+    name: str | None
+    plan_date: date | None
     status: TreatmentPlanStatus
     notes: str | None
     created_at: datetime

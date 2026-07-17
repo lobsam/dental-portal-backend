@@ -29,11 +29,9 @@ const emptyForm = {
 export default function AppointmentsPage() {
   const [tab, setTab] = useState("today");
   const [appointments, setAppointments] = useState([]);
-  const [requests, setRequests] = useState([]);
   const [patients, setPatients] = useState([]);
   const [dentists, setDentists] = useState([]);
   const [search, setSearch] = useState("");
-  const [requestFilter, setRequestFilter] = useState("pending");
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -45,14 +43,12 @@ export default function AppointmentsPage() {
 
   async function loadAll() {
     try {
-      const [a, r, p, d] = await Promise.all([
+      const [a, p, d] = await Promise.all([
         api.get("/clinic/patients/appointments/"),
-        api.get("/clinic/appointment-requests/"),
         api.get("/clinic/patients/"),
         api.get("/clinic/settings/users/").catch(() => []),
       ]);
       setAppointments(a);
-      setRequests(r);
       setPatients(p);
       setDentists(d);
     } catch (err) {
@@ -98,24 +94,6 @@ export default function AppointmentsPage() {
     }
   }
 
-  async function confirmRequest(id) {
-    try {
-      await api.post(`/clinic/appointment-requests/${id}/confirm`, {});
-      loadAll();
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  async function declineRequest(id) {
-    try {
-      await api.post(`/clinic/appointment-requests/${id}/decline`, { reason: "Not available" });
-      loadAll();
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
   function patientName(patientId) {
     const p = patients.find((x) => x.id === patientId);
     return p ? `${p.first_name} ${p.last_name}` : `Patient #${patientId}`;
@@ -153,11 +131,6 @@ export default function AppointmentsPage() {
     }
     return map;
   }, [appointments]);
-
-  const pendingRequests = requests.filter((r) => r.status === "pending");
-  const filteredRequests = requests
-    .filter((r) => r.status === requestFilter)
-    .sort((a, b) => new Date(b.requested_start) - new Date(a.requested_start));
 
   const dayCells = useMemo(() => buildMonthGrid(viewMonth), [viewMonth]);
   const selectedAppointments = (appointmentsByDay.get(ymd(selectedDate)) || []).sort(
@@ -205,9 +178,6 @@ export default function AppointmentsPage() {
         </TabButton>
         <TabButton active={tab === "calendar"} onClick={() => setTab("calendar")}>
           Calendar
-        </TabButton>
-        <TabButton active={tab === "requests"} onClick={() => setTab("requests")}>
-          Requests ({pendingRequests.length})
         </TabButton>
       </div>
 
@@ -344,64 +314,6 @@ export default function AppointmentsPage() {
               </ul>
             )}
           </div>
-        </div>
-      )}
-
-      {tab === "requests" && (
-        <div className="space-y-4">
-          <div className="inline-flex rounded-lg border border-maroon-200 overflow-hidden">
-            <TabButton
-              active={requestFilter === "pending"}
-              onClick={() => setRequestFilter("pending")}
-            >
-              Pending
-            </TabButton>
-            <TabButton
-              active={requestFilter === "approved"}
-              onClick={() => setRequestFilter("approved")}
-            >
-              Approved
-            </TabButton>
-            <TabButton
-              active={requestFilter === "rejected"}
-              onClick={() => setRequestFilter("rejected")}
-            >
-              Rejected
-            </TabButton>
-          </div>
-
-          <ListCard
-            items={filteredRequests}
-            empty={`No ${requestFilter} requests.`}
-            renderRow={(r) => (
-              <>
-                <span className="text-maroon-800">{patientName(r.patient_id)}</span>
-                <span className="text-maroon-600 text-sm">
-                  {new Date(r.requested_start).toLocaleString([], {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                </span>
-                <StatusPill status={r.status} />
-                {r.status === "pending" && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => confirmRequest(r.id)}
-                      className="text-xs bg-turquoise-500 hover:bg-turquoise-600 text-white rounded-lg px-3 py-1.5"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => declineRequest(r.id)}
-                      className="text-xs bg-white border border-maroon-200 hover:border-maroon-400 text-maroon-600 rounded-lg px-3 py-1.5"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          />
         </div>
       )}
 
@@ -552,24 +464,6 @@ function AppointmentList({ items, empty, patientName, dentistName, onStatusChang
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function ListCard({ items, empty, renderRow }) {
-  return (
-    <div className="bg-white rounded-2xl border border-saffron-200 overflow-hidden">
-      {items.length === 0 ? (
-        <p className="p-6 text-sm text-maroon-400 text-center">{empty}</p>
-      ) : (
-        <ul className="divide-y divide-saffron-100">
-          {items.map((item) => (
-            <li key={item.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
-              {renderRow(item)}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

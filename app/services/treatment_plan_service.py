@@ -53,6 +53,8 @@ class TreatmentPlanService:
             clinic_id=clinic_id,
             patient_id=data.patient_id,
             provider_id=data.provider_id,
+            name=data.name,
+            plan_date=data.plan_date,
             notes=data.notes,
         )
         for item in data.items:
