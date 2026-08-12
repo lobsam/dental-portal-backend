@@ -2,9 +2,9 @@ from pydantic import BaseModel
 
 
 class DrugBase(BaseModel):
-    name: str
+    generic_name: str
+    brand_name: str | None = None
     dosage_form: str | None = None
-    strength: str | None = None
 
 
 class DrugCreate(DrugBase):
@@ -12,9 +12,9 @@ class DrugCreate(DrugBase):
 
 
 class DrugUpdate(BaseModel):
-    name: str | None = None
+    generic_name: str | None = None
+    brand_name: str | None = None
     dosage_form: str | None = None
-    strength: str | None = None
     is_active: bool | None = None
 
 

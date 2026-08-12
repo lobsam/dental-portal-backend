@@ -14,7 +14,7 @@ class DrugService:
 
     async def list(self, clinic_id: int) -> list[Drug]:
         result = await self.db.execute(
-            select(Drug).where(Drug.clinic_id == clinic_id).order_by(Drug.name)
+            select(Drug).where(Drug.clinic_id == clinic_id).order_by(Drug.generic_name)
         )
         return list(result.scalars().all())
 

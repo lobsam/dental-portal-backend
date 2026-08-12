@@ -4,13 +4,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.drug import Drug
+from app.models.expense_category import ExpenseCategory
 from app.models.patient_source import PatientSource
 from app.models.procedure import Procedure
 from app.models.user import User
 from app.schemas.drug import DrugCreate, DrugOut, DrugUpdate
+from app.schemas.expense_category import (
+    ExpenseCategoryCreate,
+    ExpenseCategoryOut,
+    ExpenseCategoryUpdate,
+)
 from app.schemas.patient_source import PatientSourceCreate, PatientSourceOut, PatientSourceUpdate
 from app.schemas.procedure import ProcedureCreate, ProcedureOut, ProcedureUpdate
 from app.services.drug_service import DrugService
+from app.services.expense_category_service import ExpenseCategoryService
 from app.services.patient_source_service import PatientSourceService
 from app.services.procedure_service import ProcedureService
 
@@ -158,3 +165,54 @@ async def delete_patient_source(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await PatientSourceService(db).delete(current_user.clinic_id, source_id)
+
+
+# --- Expense categories ----------------------------------------------------------
+
+
+@router.get("/expense-categories/", response_model=list[ExpenseCategoryOut])
+async def list_expense_categories(
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+) -> list[ExpenseCategory]:
+    return await ExpenseCategoryService(db).list(current_user.clinic_id)
+
+
+@router.post(
+    "/expense-categories/",
+    response_model=ExpenseCategoryOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_expense_category(
+    data: ExpenseCategoryCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExpenseCategory:
+    return await ExpenseCategoryService(db).create(current_user.clinic_id, data)
+
+
+@router.get("/expense-categories/{category_id}", response_model=ExpenseCategoryOut)
+async def get_expense_category(
+    category_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExpenseCategory:
+    return await ExpenseCategoryService(db).get(current_user.clinic_id, category_id)
+
+
+@router.patch("/expense-categories/{category_id}", response_model=ExpenseCategoryOut)
+async def update_expense_category(
+    category_id: int,
+    data: ExpenseCategoryUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ExpenseCategory:
+    return await ExpenseCategoryService(db).update(current_user.clinic_id, category_id, data)
+
+
+@router.delete("/expense-categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_expense_category(
+    category_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    await ExpenseCategoryService(db).delete(current_user.clinic_id, category_id)

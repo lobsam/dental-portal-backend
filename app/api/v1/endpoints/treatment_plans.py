@@ -67,6 +67,15 @@ async def accept_treatment_plan(
     return await TreatmentPlanService(db).accept(current_user.clinic_id, plan_id)
 
 
+@router.delete("/treatment-plans/{plan_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_treatment_plan(
+    plan_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    await TreatmentPlanService(db).delete(current_user.clinic_id, plan_id)
+
+
 @router.post("/treatment-plans/{plan_id}/items", response_model=TreatmentPlanOut)
 async def add_treatment_plan_item(
     plan_id: int,

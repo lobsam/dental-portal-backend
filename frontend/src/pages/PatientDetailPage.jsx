@@ -17,6 +17,7 @@ export default function PatientDetailPage() {
   const [sources, setSources] = useState([]);
   const [procedures, setProcedures] = useState([]);
   const [error, setError] = useState("");
+  const [planError, setPlanError] = useState("");
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [planForm, setPlanForm] = useState({ ...emptyPlanForm });
   const [items, setItems] = useState([{ ...emptyItem }]);
@@ -70,13 +71,28 @@ export default function PatientDetailPage() {
   function openPlanModal() {
     setPlanForm({ ...emptyPlanForm });
     setItems([{ ...emptyItem }]);
+    setPlanError("");
     setShowPlanModal(true);
   }
 
   async function handleCreatePlan(e) {
     e.preventDefault();
+    setPlanError("");
+
+    if (!planForm.name.trim()) {
+      setPlanError("Plan name is required.");
+      return;
+    }
+    if (!planForm.plan_date) {
+      setPlanError("Date is required.");
+      return;
+    }
+    if (!items.some((it) => it.procedure_id)) {
+      setPlanError("At least one procedure is required.");
+      return;
+    }
+
     setSaving(true);
-    setError("");
     try {
       const payloadItems = items
         .filter((it) => it.procedure_id || it.description)
@@ -96,7 +112,7 @@ export default function PatientDetailPage() {
       setShowPlanModal(false);
       load();
     } catch (err) {
-      setError(err.message);
+      setPlanError(err.message);
     } finally {
       setSaving(false);
     }
@@ -104,6 +120,17 @@ export default function PatientDetailPage() {
 
   function planTotal(plan) {
     return plan.items.reduce((sum, item) => sum + (Number(item.cost) || 0), 0);
+  }
+
+  async function deletePlan(plan) {
+    const label = plan.name || `Plan #${plan.id}`;
+    if (!window.confirm(`Delete "${label}"? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/clinic/treatment-plans/${plan.id}`);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   const sourceName = patient
@@ -235,12 +262,33 @@ export default function PatientDetailPage() {
               <ul className="divide-y divide-saffron-100">
                 {plans.map((plan) => (
                   <li key={plan.id} className="py-2.5 text-sm">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-maroon-800 font-medium">
                         {plan.name || `Plan #${plan.id}`}
                         {plan.plan_date ? ` — ${plan.plan_date}` : ""}
                       </span>
-                      <StatusPill status={plan.status} />
+                      <div className="flex items-center gap-2 shrink-0">
+                        <StatusPill status={plan.status} />
+                        <button
+                          onClick={() => deletePlan(plan)}
+                          className="text-maroon-400 hover:text-maroon-700 border border-transparent hover:border-maroon-200 rounded-lg p-1.5"
+                          title="Delete treatment plan"
+                          aria-label="Delete treatment plan"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="w-4 h-4"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8.75 1a.75.75 0 0 0-.75.75V3H4.5a.75.75 0 0 0 0 1.5h.325l.732 10.25A2.25 2.25 0 0 0 7.8 16.75h4.4a2.25 2.25 0 0 0 2.243-2.05L15.175 4.5H15.5a.75.75 0 0 0 0-1.5H12v-1.25a.75.75 0 0 0-.75-.75h-2.5ZM10 4.5H5.834l.72 10.14a.75.75 0 0 0 .748.61h4.396a.75.75 0 0 0 .748-.61l.72-10.14H10Zm-1.25 2.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 .75-.75Zm3.25.75a.75.75 0 0 0-1.5 0v6a.75.75 0 0 0 1.5 0v-6Z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <div className="text-maroon-500 mt-0.5">
                       {plan.items.length} item{plan.items.length === 1 ? "" : "s"} · $
@@ -261,17 +309,26 @@ export default function PatientDetailPage() {
         title="New treatment plan"
       >
         <form onSubmit={handleCreatePlan} className="space-y-4">
+          {planError && (
+            <p className="text-sm text-maroon-700 bg-maroon-50 border border-maroon-200 rounded-lg px-3 py-2">
+              {planError}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <TextField
               label="Plan name"
+              required
               value={planForm.name}
               onChange={(v) => setPlanForm((f) => ({ ...f, name: v }))}
               placeholder="e.g. Full mouth restoration"
             />
             <div>
-              <label className="block text-sm font-medium text-maroon-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-maroon-700 mb-1">
+                Date <span className="text-maroon-500">*</span>
+              </label>
               <input
                 type="date"
+                required
                 value={planForm.plan_date}
                 onChange={(e) => setPlanForm((f) => ({ ...f, plan_date: e.target.value }))}
                 className="w-full rounded-lg border border-maroon-200 px-3 py-2 text-sm text-maroon-900 focus:outline-none focus:ring-2 focus:ring-turquoise-400"
@@ -281,7 +338,9 @@ export default function PatientDetailPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-maroon-700">Procedures</label>
+              <label className="block text-sm font-medium text-maroon-700">
+                Procedures <span className="text-maroon-500">*</span>
+              </label>
               <button
                 type="button"
                 onClick={addItemRow}

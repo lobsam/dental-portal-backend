@@ -77,6 +77,11 @@ class TreatmentPlanService:
         await self.db.commit()
         return await self.get(clinic_id, plan_id)
 
+    async def delete(self, clinic_id: int, plan_id: int) -> None:
+        plan = await self.get(clinic_id, plan_id)
+        await self.db.delete(plan)
+        await self.db.commit()
+
     async def add_item(
         self, clinic_id: int, plan_id: int, data: TreatmentPlanItemCreate
     ) -> TreatmentPlan:

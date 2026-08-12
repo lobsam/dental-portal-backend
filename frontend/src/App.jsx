@@ -9,7 +9,7 @@ import PatientsPage from "./pages/PatientsPage";
 import PatientAddPage from "./pages/PatientAddPage";
 import PatientDetailPage from "./pages/PatientDetailPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
-import TreatmentPlansPage from "./pages/TreatmentPlansPage";
+import ManagersPage from "./pages/ManagersPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
 function App() {
@@ -26,7 +26,8 @@ function App() {
         <Route path="/patients/add" element={<PatientAddPage />} />
         <Route path="/patients/:id" element={<PatientDetailPage />} />
         <Route path="/appointments" element={<AppointmentsPage />} />
-        <Route path="/treatment-plans" element={<TreatmentPlansPage />} />
+        <Route path="/managers/:tab" element={<ManagersPage />} />
+        <Route path="/managers" element={<Navigate to="/managers/procedures" replace />} />
         <Route path="/finance" element={<ComingSoonPage title="Finance" />} />
         <Route path="/settings" element={<ComingSoonPage title="Settings" />} />
       </Route>
