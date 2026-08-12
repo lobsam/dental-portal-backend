@@ -5,6 +5,10 @@ description = "Dental portal REST API"
 authors = [
     {name = "dental-portal"}
 ]
+
+[tool.uv]
+package = false
+
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
