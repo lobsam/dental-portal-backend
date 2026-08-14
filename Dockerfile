@@ -16,8 +16,9 @@ RUN pip install --no-cache-dir poetry==1.8.3
 
 COPY pyproject.toml poetry.lock ./
 
-# Install only the runtime dependency group (skip dev/test/lint tools)
-RUN poetry install --only main --no-root --no-ansi
+# Install dependencies (pyproject uses PEP 621 + dependency-groups, which
+# Poetry 1.8's --only main doesn't reliably target -- just install everything)
+RUN poetry install --no-root --no-ansi
 
 COPY app ./app
 COPY alembic ./alembic
