@@ -16,9 +16,14 @@ RUN pip install --no-cache-dir poetry==1.8.3
 
 COPY pyproject.toml poetry.lock ./
 
-# Install dependencies (pyproject uses PEP 621 + dependency-groups, which
-# Poetry 1.8's --only main doesn't reliably target -- just install everything)
-RUN poetry install --no-root --no-ansi
+# Re-lock against this image's pinned Poetry version first -- the lock file
+# committed to the repo may have been generated with a different Poetry
+# version, which changes the content-hash and makes 1.8.3 reject it as
+# stale even when dependencies haven't actually changed.
+# Then install everything (pyproject uses PEP 621 + dependency-groups,
+# which Poetry 1.8's --only main doesn't reliably target).
+RUN poetry lock --no-update --no-ansi \
+    && poetry install --no-root --no-ansi
 
 COPY app ./app
 COPY alembic ./alembic
