@@ -38,6 +38,8 @@ POSTGRES_DB=dental_portal
 poetry run alembic upgrade head
 ```
 
+
+
 ### 4. Start the development server
 
 ```bash
@@ -48,6 +50,8 @@ The API will be available at `http://localhost:8000`.
 
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+
 
 ## Project Structure
 
@@ -71,18 +75,24 @@ dental-portal-backend/
 └── .env.example
 ```
 
+
+
 ## Common Commands
 
-| Task | Command |
-|---|---|
-| Install deps | `poetry install` |
-| Run server | `poetry run uvicorn app.main:app --reload` |
-| Create migration | `poetry run alembic revision --autogenerate -m "description"` |
-| Apply migrations | `poetry run alembic upgrade head` |
-| Rollback one step | `poetry run alembic downgrade -1` |
-| Lint | `poetry run ruff check .` |
-| Format | `poetry run ruff format .` |
-| Run tests | `poetry run pytest` |
+
+| Task              | Command                                                       |
+| ----------------- | ------------------------------------------------------------- |
+| Install deps      | `poetry install`                                              |
+| Run server        | `poetry run uvicorn app.main:app --reload`                    |
+| Create migration  | `poetry run alembic revision --autogenerate -m "description"` |
+| Apply migrations  | `poetry run alembic upgrade head`                             |
+| Rollback one step | `poetry run alembic downgrade -1`                             |
+| Lint              | `poetry run ruff check .`                                     |
+| Format            | `poetry run ruff format .`                                    |
+| Run tests         | `poetry run pytest`                                           |
+
+
+
 
 ## Adding a New Model
 
@@ -100,15 +110,16 @@ class Patient(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255))
 ```
 
-2. Import it in `app/models/__init__.py` so Alembic picks it up:
+1. Import it in `app/models/__init__.py` so Alembic picks it up:
 
 ```python
 from app.models.patient import Patient  # noqa: F401
 ```
 
-3. Generate and apply the migration:
+1. Generate and apply the migration:
 
 ```bash
 poetry run alembic revision --autogenerate -m "add patients table"
 poetry run alembic upgrade head
 ```
+
