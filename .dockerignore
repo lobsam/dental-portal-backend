@@ -1,0 +1,14 @@
+venv
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+.env.example
+frontend
+node_modules
+docs
+.ruff_cache
+*.md
+tests

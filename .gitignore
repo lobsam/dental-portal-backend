@@ -37,3 +37,4 @@ htmlcov/
 .ruff_cache/
 
 venv/
+node_modules/

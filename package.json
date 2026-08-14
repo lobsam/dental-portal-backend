@@ -1,0 +1,16 @@
+{
+  "name": "dental-portal-backend-worker",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260811.1",
+    "wrangler": "^4.123.0"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.0.9"
+  }
+}
