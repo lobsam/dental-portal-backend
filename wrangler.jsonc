@@ -24,6 +24,9 @@
       }
     ]
   },
+  "observability": {
+    "enabled": true,
+  },
   "migrations": [
     {
       "tag": "v1",
