@@ -34,8 +34,12 @@ function envVarsFromDotEnv(): Record<string, string> {
 
 export class Backend extends Container {
   defaultPort = 8080;
-  sleepAfter = "10m";
+  sleepAfter = "2m";
   envVars = envVarsFromDotEnv();
+  
+  constructor(ctx: DurableObjectState, env: Env) {
+    super(ctx as DurableObjectState<{}>, env, { explicitContainerStart: true });
+  }
 }
 
 export interface Env {
