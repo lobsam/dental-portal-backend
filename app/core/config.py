@@ -1,8 +1,14 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        str_strip_whitespace=True,
+    )
 
     # App
     APP_NAME: str = "Dental Portal API"
@@ -12,6 +18,14 @@ class Settings(BaseSettings):
     # Database - expects asyncpg scheme, e.g.:
     # postgresql+asyncpg://user:password@host:5432/dbname
     DATABASE_URL: str
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: object) -> object:
+        # docker run --env-file keeps quotes and Windows CRLF as part of the value
+        if isinstance(value, str):
+            return value.strip().strip("'\"")
+        return value
 
     # Auth
     JWT_SECRET_KEY: str = "change-me-in-production"
