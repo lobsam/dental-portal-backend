@@ -13,21 +13,6 @@
         "vcpu": 1,
         "memory_mib": 3072,
         "disk_mb": 2000
-      },
-      "vars": {
-        "APP_NAME": "Dental Portal API",
-        "APP_VERSION": "0.1.0",
-        "DEBUG": "true",
-        "DATABASE_URL": "postgresql+asyncpg://neondb_owner:npg_V4MPyJFI3aZN@ep-shy-sky-ao2r7r8p.c-2.ap-southeast-1.aws.neon.tech/dental-portal-db?ssl=require",
-        "SMTP_HOST": "smtp.gmail.com",
-        "SMTP_PORT": "587",
-        "SMTP_USERNAME": "sanduplobzang@gmail.com",
-        "SMTP_PASSWORD": "feltswrfstmbjdpt",
-        "SMTP_USE_TLS": "true",
-        "SMTP_FROM_EMAIL": "sanduplobzang@gmail.com",
-        "SMTP_FROM_NAME": "Dental Portal",
-        "FRONTEND_URL": "http://localhost:5173",
-        "PASSWORD_RESET_TOKEN_EXPIRE_MINUTES": "30"
       }
     }
   ],
