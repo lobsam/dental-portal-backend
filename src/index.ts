@@ -1,9 +1,9 @@
 import { Container, getContainer } from "@cloudflare/containers";
 
 // One container instance, kept warm; requests are forwarded to the
-// FastAPI app running inside the Docker image on port 8080.
+// FastAPI app running inside the Docker image on port 3000.
 export class Backend extends Container {
-  defaultPort = 8080;
+  defaultPort = 3000;
   sleepAfter = "10m";
 }
 
