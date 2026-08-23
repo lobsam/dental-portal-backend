@@ -34,7 +34,6 @@ function envVarsFromDotEnv(): Record<string, string> {
 
 export class Backend extends Container {
   defaultPort = 8000;
-  sleepAfter = "2m";
   envVars = envVarsFromDotEnv();
   
   constructor(ctx: DurableObjectState, env: Env) {
