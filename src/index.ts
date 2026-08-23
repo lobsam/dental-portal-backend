@@ -37,7 +37,7 @@ export class Backend extends Container {
   envVars = envVarsFromDotEnv();
   
   constructor(ctx: DurableObjectState, env: Env) {
-    super(ctx as DurableObjectState<{}>, env, { explicitContainerStart: true });
+    super(ctx as DurableObjectState<{}>, env);
   }
 }
 
