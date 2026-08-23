@@ -35,9 +35,17 @@ function envVarsFromDotEnv(): Record<string, string> {
 export class Backend extends Container {
   defaultPort = 8000;
   envVars = envVarsFromDotEnv();
-  
+
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx as DurableObjectState<{}>, env);
+  }
+
+  override async fetch(request: Request): Promise<Response> {
+    await this.startAndWaitForPorts({
+      ports: 8000,
+      cancellationOptions: { portReadyTimeoutMS: 60_000 },
+    });
+    return this.containerFetch(request);
   }
 }
 
