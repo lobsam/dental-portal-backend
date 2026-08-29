@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     SMTP_FROM_NAME: str = "Dental Portal"
 
     # Base URL of the deployed frontend, used to build links in emails
-    FRONTEND_URL: str = "http://localhost:5173"
+    FRONTEND_URL: str = "https://dental-portal-frontend.sanduplobzang.workers.dev/"
 
     # Password reset
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
