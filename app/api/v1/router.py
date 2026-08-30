@@ -4,11 +4,14 @@ from app.api.v1.endpoints import (
     appointments,
     auth,
     clinic,
+    dental_notes,
     finance,
     managers,
     patients,
     prescriptions,
+    roles,
     salary,
+    staff,
     treatment_plans,
 )
 
@@ -26,6 +29,9 @@ router.include_router(patients.router)
 router.include_router(appointments.router)
 router.include_router(managers.router)
 router.include_router(treatment_plans.router)
+router.include_router(dental_notes.router)
 router.include_router(prescriptions.router)
 router.include_router(finance.router)
 router.include_router(salary.router)
+router.include_router(staff.router)
+router.include_router(roles.router)

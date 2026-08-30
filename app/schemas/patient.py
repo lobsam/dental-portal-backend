@@ -32,6 +32,7 @@ class PatientBase(BaseModel):
     patient_source_id: int | None = None
     photo_url: str | None = None
     notes: str | None = None
+    dentition: str | None = None
 
 
 class PatientCreate(PatientBase):
@@ -62,6 +63,7 @@ class PatientUpdate(BaseModel):
     photo_url: str | None = None
     notes: str | None = None
     is_active: bool | None = None
+    dentition: str | None = None
 
 
 class PatientOut(PatientBase):

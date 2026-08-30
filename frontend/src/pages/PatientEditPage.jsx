@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
 import PageShell from "../components/PageShell";
 import { EndlessKnot } from "../components/TibetanMotif";
+import { Section, Field, SelectField } from "./PatientAddPage";
 
 const emptyForm = {
   patient_code: "",
@@ -28,10 +29,12 @@ const emptyForm = {
   notes: "",
 };
 
-export default function PatientAddPage() {
+export default function PatientEditPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
   const [sources, setSources] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +44,39 @@ export default function PatientAddPage() {
       .then(setSources)
       .catch(() => setSources([]));
   }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    api
+      .get(`/clinic/patients/${id}`)
+      .then((p) => {
+        setForm({
+          patient_code: p.patient_code || "",
+          first_name: p.first_name || "",
+          middle_name: p.middle_name || "",
+          last_name: p.last_name || "",
+          suffix: p.suffix || "",
+          nickname: p.nickname || "",
+          gender: p.gender || "",
+          email: p.email || "",
+          phone: p.phone || "",
+          date_of_birth: p.date_of_birth || "",
+          address: p.address || "",
+          job_title: p.job_title || "",
+          height: p.height ?? "",
+          weight: p.weight ?? "",
+          emergency_contact_name: p.emergency_contact_name || "",
+          emergency_contact_phone: p.emergency_contact_phone || "",
+          recall_date: p.recall_date || "",
+          has_allergies: !!p.has_allergies,
+          allergies: p.allergies || "",
+          patient_source_id: p.patient_source_id != null ? String(p.patient_source_id) : "",
+          notes: p.notes || "",
+        });
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   function set(field) {
     return (e) => {
@@ -62,8 +98,8 @@ export default function PatientAddPage() {
         weight: form.weight === "" ? null : Number(form.weight),
         patient_source_id: form.patient_source_id ? Number(form.patient_source_id) : null,
       };
-      const patient = await api.post("/clinic/patients/", payload);
-      navigate(`/patients/${patient.id}`);
+      await api.patch(`/clinic/patients/${id}`, payload);
+      navigate(`/patients/${id}`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,12 +107,20 @@ export default function PatientAddPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <PageShell title="Edit Patient">
+        <p className="text-sm text-maroon-400">Loading…</p>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell
-      title="Add Patient"
+      title="Edit Patient"
       actions={
-        <Link to="/patients" className="text-sm text-turquoise-600 hover:underline">
-          ← Back to patients
+        <Link to={`/patients/${id}`} className="text-sm text-turquoise-600 hover:underline">
+          ← Back to patient
         </Link>
       }
     >
@@ -89,7 +133,7 @@ export default function PatientAddPage() {
       <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
         <Section title="Identity" icon={<EndlessKnot className="w-5 h-5 text-saffron-400" />}>
           <div className="grid grid-cols-3 gap-4">
-            <Field label="Patient ID" hint="Leave blank to auto-generate" value={form.patient_code} onChange={set("patient_code")} />
+            <Field label="Patient ID" value={form.patient_code} onChange={set("patient_code")} />
             <Field label="Nickname" value={form.nickname} onChange={set("nickname")} />
             <SelectField
               label="Gender"
@@ -178,10 +222,10 @@ export default function PatientAddPage() {
             disabled={saving}
             className="bg-maroon-700 hover:bg-maroon-600 disabled:opacity-60 text-parchment-50 font-medium rounded-lg px-6 py-2.5"
           >
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Saving…" : "Save changes"}
           </button>
           <Link
-            to="/patients"
+            to={`/patients/${id}`}
             className="border border-maroon-200 text-maroon-600 hover:border-maroon-400 rounded-lg px-6 py-2.5"
           >
             Cancel
@@ -189,56 +233,5 @@ export default function PatientAddPage() {
         </div>
       </form>
     </PageShell>
-  );
-}
-
-export function Section({ title, icon, children }) {
-  return (
-    <div className="bg-white rounded-2xl border border-saffron-200 p-6">
-      <h2 className="flex items-center gap-2 text-maroon-800 font-semibold mb-4">
-        {icon}
-        {title}
-      </h2>
-      <div className="space-y-4">{children}</div>
-    </div>
-  );
-}
-
-export function Field({ label, value, onChange, type = "text", required, className = "", hint, textarea, ...rest }) {
-  const Comp = textarea ? "textarea" : "input";
-  return (
-    <div className={className}>
-      <label className="block text-sm font-medium text-maroon-700 mb-1">{label}</label>
-      <Comp
-        type={textarea ? undefined : type}
-        required={required}
-        value={value}
-        onChange={onChange}
-        rows={textarea ? 3 : undefined}
-        className="w-full rounded-lg border border-maroon-200 px-3 py-2 text-sm text-maroon-900 focus:outline-none focus:ring-2 focus:ring-turquoise-400"
-        {...rest}
-      />
-      {hint && <p className="text-xs text-maroon-400 mt-1">{hint}</p>}
-    </div>
-  );
-}
-
-export function SelectField({ label, value, onChange, options, required, className = "" }) {
-  return (
-    <div className={className}>
-      <label className="block text-sm font-medium text-maroon-700 mb-1">{label}</label>
-      <select
-        required={required}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded-lg border border-maroon-200 px-3 py-2 text-sm text-maroon-900 focus:outline-none focus:ring-2 focus:ring-turquoise-400"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </div>
   );
 }

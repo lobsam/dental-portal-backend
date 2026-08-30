@@ -163,9 +163,23 @@ export default function PatientDetailPage() {
     <PageShell
       title={fullName}
       actions={
-        <Link to="/patients" className="text-sm text-turquoise-600 hover:underline">
-          ← Back to patients
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/patients" className="text-sm text-turquoise-600 hover:underline">
+            ← Back to patients
+          </Link>
+          <Link
+            to={`/patients/${id}/edit`}
+            className="border border-maroon-200 text-maroon-700 hover:border-maroon-400 text-xs font-medium rounded-lg px-3 py-1.5"
+          >
+            Edit
+          </Link>
+          <Link
+            to={`/patients/${id}/dental-chart`}
+            className="bg-maroon-700 hover:bg-maroon-600 text-parchment-50 text-xs font-medium rounded-lg px-3 py-1.5"
+          >
+            Dental chart
+          </Link>
+        </div>
       }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -53,6 +53,12 @@ class Patient(Base, TimestampMixin):
     notes: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(default=True)
 
+    # "adult" or "pediatric" -- fixes which dental chart layout (32
+    # permanent teeth vs 20 primary teeth) applies to this patient. Left
+    # unset until the dentist is asked on first visiting the dental chart,
+    # so a patient is never shown both layouts.
+    dentition: Mapped[str | None] = mapped_column(String(20))
+
     clinic: Mapped["Clinic"] = relationship(back_populates="patients")  # noqa: F821
     appointments: Mapped[list["Appointment"]] = relationship(back_populates="patient")  # noqa: F821
     patient_source: Mapped["PatientSource | None"] = relationship()  # noqa: F821

@@ -31,4 +31,10 @@ class User(Base, TimestampMixin):
     specialization: Mapped[str | None] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(default=True)
 
+    # Optional finer-grained, clinic-defined permission set (see
+    # app/models/role.py) layered on top of the coarse UserRole above.
+    custom_role_id: Mapped[int | None] = mapped_column(
+        ForeignKey("roles.id", ondelete="SET NULL"), index=True
+    )
+
     clinic: Mapped["Clinic"] = relationship(back_populates="users")  # noqa: F821

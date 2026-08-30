@@ -13,8 +13,9 @@ from app.schemas.auth import (
     ResetPasswordRequest,
     TokenResponse,
 )
-from app.schemas.user import UserOut
+from app.schemas.user import MeOut
 from app.services.auth_service import AuthService
+from app.services.role_service import resolve_permissions
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -41,9 +42,13 @@ async def logout(current_user: User = Depends(get_current_user)) -> None:
     return None
 
 
-@router.get("/me", response_model=UserOut)
-async def me(current_user: User = Depends(get_current_user)) -> User:
-    return current_user
+@router.get("/me", response_model=MeOut)
+async def me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    permissions = await resolve_permissions(current_user, db)
+    return {**MeOut.model_validate(current_user).model_dump(), "permissions": permissions}
 
 
 @router.post("/forgot-password")

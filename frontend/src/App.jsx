@@ -8,8 +8,15 @@ import DashboardHome from "./pages/DashboardHome";
 import PatientsPage from "./pages/PatientsPage";
 import PatientAddPage from "./pages/PatientAddPage";
 import PatientDetailPage from "./pages/PatientDetailPage";
+import PatientEditPage from "./pages/PatientEditPage";
+import DentalChartPage from "./pages/DentalChartPage";
+import DentalNoteAddPage from "./pages/DentalNoteAddPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import ManagersPage from "./pages/ManagersPage";
+import StaffListPage from "./pages/StaffListPage";
+import StaffAddPage from "./pages/StaffAddPage";
+import RoleManagerPage from "./pages/RoleManagerPage";
+import RoleFormPage from "./pages/RoleFormPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
 function App() {
@@ -25,11 +32,20 @@ function App() {
         <Route path="/patients" element={<PatientsPage />} />
         <Route path="/patients/add" element={<PatientAddPage />} />
         <Route path="/patients/:id" element={<PatientDetailPage />} />
+        <Route path="/patients/:id/edit" element={<PatientEditPage />} />
+        <Route path="/patients/:id/dental-chart" element={<DentalChartPage />} />
+        <Route path="/patients/:id/dental-notes/add" element={<DentalNoteAddPage />} />
         <Route path="/appointments" element={<AppointmentsPage />} />
         <Route path="/managers/:tab" element={<ManagersPage />} />
         <Route path="/managers" element={<Navigate to="/managers/procedures" replace />} />
         <Route path="/finance" element={<ComingSoonPage title="Finance" />} />
-        <Route path="/settings" element={<ComingSoonPage title="Settings" />} />
+        <Route path="/settings" element={<Navigate to="/settings/staff" replace />} />
+        <Route path="/settings/staff" element={<StaffListPage />} />
+        <Route path="/settings/staff/add" element={<StaffAddPage />} />
+        <Route path="/settings/staff/:id/edit" element={<StaffAddPage />} />
+        <Route path="/settings/roles" element={<RoleManagerPage />} />
+        <Route path="/settings/roles/add" element={<RoleFormPage />} />
+        <Route path="/settings/roles/:id/edit" element={<RoleFormPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
